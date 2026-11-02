@@ -1,0 +1,48 @@
+name: Test Calculadora Descuento
+
+on:
+  push:
+    paths:
+      - calculadora-descuento/**
+      - .github/workflows/test-descuento.yml
+  workflow_dispatch:
+
+jobs:
+  prueba:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Calcular descuento
+        id: calculo
+        uses: ./calculadora-descuento
+        with:
+          precio: "1500"
+          descuento: "10"
+
+      - name: Verificar precio con descuento
+        shell: bash
+        env:
+          TOTAL: ${{ steps.calculo.outputs.total }}
+        run: |
+          test "$TOTAL" = "1350.00"
+          echo "Precio con descuento: $TOTAL"
+
+  descuento-invalido:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rechazar un descuento fuera de rango
+        id: calculo
+        continue-on-error: true
+        uses: ./calculadora-descuento
+        with:
+          precio: "1500"
+          descuento: "110"
+
+      - name: Confirmar que la action falló
+        if: steps.calculo.outcome != 'failure'
+        run: |
+          echo "La action debía rechazar un descuento de 110."
+          exit 1

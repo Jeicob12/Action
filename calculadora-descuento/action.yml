@@ -1,0 +1,23 @@
+name: Calculadora de descuento
+description: Aplica un descuento porcentual y devuelve el precio final.
+inputs:
+  precio:
+    description: Precio original.
+    required: true
+  descuento:
+    description: Porcentaje de descuento a aplicar, entre 0 y 100.
+    required: true
+outputs:
+  total:
+    description: Precio final con el descuento aplicado.
+    value: ${{ steps.calcular.outputs.total }}
+runs:
+  using: composite
+  steps:
+    - name: Calcular precio con descuento
+      id: calcular
+      shell: bash
+      env:
+        PRECIO: ${{ inputs.precio }}
+        DESCUENTO: ${{ inputs.descuento }}
+      run: bash "$GITHUB_ACTION_PATH/calcular.sh"
