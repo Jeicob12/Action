@@ -1,51 +1,12 @@
-name: Generar informe
-description: >-
-  Recibe título, responsable, descripción y prioridad, valida los datos
-  y genera un informe en Markdown.
-author: Jacobo
-
-branding:
-  icon: file-text
-  color: blue
-
+name: Saludo Personalizado
+description: Action personalizada que muestra un mensaje de saludo.
 inputs:
-  titulo:
-    description: Título del informe.
+  nombre:
+    description: Nombre del usuario
     required: true
-  responsable:
-    description: Persona responsable de la tarea.
-    required: true
-  descripcion:
-    description: Detalle de lo que se hizo.
-    required: true
-  prioridad:
-    description: "Prioridad de la tarea: baja, media o alta."
-    required: false
-    default: media
-
-outputs:
-  informe:
-    description: Informe completo en Markdown.
-    value: ${{ steps.generar.outputs.informe }}
-  prioridad:
-    description: Prioridad normalizada en minúsculas.
-    value: ${{ steps.generar.outputs.prioridad }}
-  linea:
-    description: Resumen de una sola línea.
-    value: ${{ steps.generar.outputs.linea }}
-  archivo:
-    description: Ruta del archivo Markdown generado.
-    value: ${{ steps.generar.outputs.archivo }}
-
 runs:
   using: composite
   steps:
-    - name: Generar informe
-      id: generar
-      shell: bash
-      env:
-        TITULO: ${{ inputs.titulo }}
-        RESPONSABLE: ${{ inputs.responsable }}
-        DESCRIPCION: ${{ inputs.descripcion }}
-        PRIORIDAD: ${{ inputs.prioridad }}
-      run: bash "$GITHUB_ACTION_PATH/scripts/generar-informe.sh"
+    - shell: bash
+      run: |
+        echo "Hola ${{ inputs.nombre }}"
