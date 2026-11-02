@@ -30,7 +30,7 @@ Precio con descuento: 1350.00
 ## Uso
 
 ```yaml
-- uses: Jeicob12/action/calculadora-descuento@main
+- uses: Jeicob12/Action/calculadora-descuento@calculadora-descuento
   id: calculo
   with:
     precio: "1500"
