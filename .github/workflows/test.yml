@@ -9,4 +9,4 @@ jobs:
       - name: Ejecutar Action
         uses: ./
         with:
-          nombre: GitHub Actions
+          nombre: jacobo vocos

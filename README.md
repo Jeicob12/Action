@@ -19,7 +19,7 @@ El workflow [`.github/workflows/test.yml`](.github/workflows/test.yml) se dispar
 El step **Ejecutar Action** imprime:
 
 ```
-Hola GitHub Actions
+Hola jacobo vocos
 ```
 
 ## Uso
@@ -27,5 +27,5 @@ Hola GitHub Actions
 ```yaml
 - uses: Jeicob12/github-action-jacobo-vocos@main
   with:
-    nombre: GitHub Actions
+    nombre: jacobo vocos
 ```
