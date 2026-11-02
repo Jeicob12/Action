@@ -25,7 +25,7 @@ Hola jacobo vocos
 ## Uso
 
 ```yaml
-- uses: Jeicob12/github-action-jacobo-vocos@main
+- uses: Jeicob12/action@main
   with:
     nombre: jacobo vocos
 ```
