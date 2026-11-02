@@ -1,0 +1,122 @@
+name: Probar action
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      titulo:
+        description: Título del informe
+        required: true
+        default: Prueba manual
+      responsable:
+        description: Responsable
+        required: true
+        default: Jacobo
+      descripcion:
+        description: Descripción de la tarea
+        required: true
+        default: Ejecución disparada a mano desde la pestaña Actions.
+      prioridad:
+        description: Prioridad
+        required: true
+        default: media
+        type: choice
+        options:
+          - baja
+          - media
+          - alta
+
+permissions:
+  contents: read
+
+jobs:
+  generar:
+    name: Generar informe
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v7
+
+      - name: Ejecutar la action
+        id: informe
+        uses: ./
+        with:
+          titulo: ${{ github.event.inputs.titulo || 'Entrega de la action' }}
+          responsable: ${{ github.event.inputs.responsable || 'Jacobo' }}
+          descripcion: ${{ github.event.inputs.descripcion || 'La action arma un informe Markdown a partir de los parámetros recibidos.' }}
+          prioridad: ${{ github.event.inputs.prioridad || 'media' }}
+
+      - name: Verificar salidas
+        shell: bash
+        env:
+          PRIORIDAD_ESPERADA: ${{ github.event.inputs.prioridad || 'media' }}
+          PRIORIDAD: ${{ steps.informe.outputs.prioridad }}
+          LINEA: ${{ steps.informe.outputs.linea }}
+          ARCHIVO: ${{ steps.informe.outputs.archivo }}
+        run: |
+          test -s informe.md
+          test "$PRIORIDAD" = "$PRIORIDAD_ESPERADA"
+          test "$ARCHIVO" = "$GITHUB_WORKSPACE/informe.md"
+          test -n "$LINEA"
+          grep -F "| Prioridad | ${PRIORIDAD} |" informe.md
+          echo "$LINEA"
+
+      - name: Publicar el informe
+        uses: actions/upload-artifact@v7
+        with:
+          name: informe
+          path: informe.md
+          if-no-files-found: error
+
+  normalizar-prioridad:
+    name: Normalizar prioridad
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v7
+
+      - name: Ejecutar la action con prioridad en mayúsculas
+        id: informe
+        uses: ./
+        with:
+          titulo: Normalización
+          responsable: CI
+          descripcion: La prioridad en mayúsculas debe quedar en minúsculas.
+          prioridad: ALTA
+
+      - name: Verificar la prioridad normalizada
+        shell: bash
+        env:
+          PRIORIDAD: ${{ steps.informe.outputs.prioridad }}
+        run: |
+          test "$PRIORIDAD" = "alta"
+          grep -F "| Prioridad | alta |" informe.md
+
+  rechazar-prioridad-invalida:
+    name: Rechazar prioridad inválida
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v7
+
+      - name: Ejecutar la action con una prioridad inválida
+        id: informe
+        continue-on-error: true
+        uses: ./
+        with:
+          titulo: Caso inválido
+          responsable: CI
+          descripcion: Esta ejecución debe fallar.
+          prioridad: urgente
+
+      - name: Confirmar que la action falló
+        if: steps.informe.outcome != 'failure'
+        run: |
+          echo "La action debía rechazar la prioridad 'urgente'."
+          exit 1
