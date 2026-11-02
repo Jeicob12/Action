@@ -1,0 +1,12 @@
+name: Saludo Personalizado
+description: Action personalizada que muestra un mensaje de saludo.
+inputs:
+  nombre:
+    description: Nombre del usuario
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        echo "Hola ${{ inputs.nombre }}"
